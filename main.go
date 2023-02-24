@@ -218,5 +218,7 @@ func getWebsiteStatus(url string) (int, error) {
 		return 0, err
 	}
 	status_code := resp.StatusCode
+
+	resp.Body.Close()
 	return status_code, nil
 }
