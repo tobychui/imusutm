@@ -1,14 +1,25 @@
-# ![](assets/README/2022-12-30-21-15-43-image.png)
+![圖片](https://github.com/tobychui/imusutm/assets/24617523/f8098c25-ea74-48bc-8837-a73bf831c26c)
+
 
 # imusutm
 
-Service up-time monitor for PHP server but written in Golang
+Baisc service up-time monitor and TOTP generator written in Golang
 
 ## Usage
 
-This project contain two parts: The PHP section and the Go section. The PHP section contains the UI and the required script to show the UI, and the Go section in charge of pinging the listed URLs at a regular interval to keep track of their online states. 
+Double click the binary executable to run the up-time monitor. 
 
-### Setup Backend Monitoring Server
+## Build from Source
+```
+git clone https://github.com/tobychui/imusutm
+cd imusutm
+go mod tidy
+go build
+./utm
+(or .\utm.exe)
+```
+
+### Setup Monitoring Server
 
 Create a file named "config.json" and place it in the same folder to the binary executable.
 
@@ -39,51 +50,24 @@ You can also change the port if this port has already been occupied by another s
 
 *Tips: You can add it to systemd as a service if you want it to startup with your other services on Linux*
 
-### Setup Front-end Deliverying PHP Script
+### Setting up TOTP Code Generator
+TOTP code generator was added after Github force me to enable 2FA to my account. 
+You can setup a totp code generator with a config file name totp.json with the following contents.
 
-The front-end is delivered by a PHP script. To use the uptime monitor, copy all files from the "php" folder and place it somewhere in the webroot.
-
-Change the following line if you have changed the port number of the backend monitoring server startup paramter.
-
-```php
-let records = JSON.parse(`<?php echo file_get_contents("http://localhost:8089/")?>`);
+```json
+{
+ "Entries": [
+  {
+   "Name": "Example",
+   "Secret": "JBSWY3DPEHPK3PXP",
+   "Link": "example.com"
+  },
+	//Add more line if needed
+ ]
+}
 ```
-
-### Auto Page Refresh
-
-If you are planning to build a "status monitor monitor" that require the page to update the status automatically, you can uncomment and edit the following section of code from the JavaScript section of the index.php.
-
-```javascript
-setInterval(function(){
-	$.get("api.php?token={{your_token}}", function(data){
-		console.log("Status Updated");
-		records = data;
-		renderRecords();
-	});
-}, (300 * 1000));
-```
-
-Replace ```{{your_token}``` with a randomly generated token (e.g. UUIDv4) and put it in the api.php file token paramter.
-
-```php
-$tokens = ["{{your_token}}"];
-```
-
-That way, your page will automatically updates itself when a preset time is reached. (In the example above, it is 300 seconds = 5 minutes)
-
-
-
-## Build from source
-
-If you decide to build from source for the Golang part of the system, here is the command for doing that.
-
-```bash
-cd imusutm/
-go mod tidy
-go build
-./utm 
-#(or .\utm.exe if you are on Windows machine)
-```
+Restart the application to see the new code generator running.
+![圖片](https://github.com/tobychui/imusutm/assets/24617523/f0567094-b660-44c8-9527-2e378b8f1a87)
 
 ## More Protocols Support
 
@@ -98,3 +82,6 @@ As I only need to ping my own web servers, I currently only implemented the foll
 ### License
 
 MIT License
+
+### Disclaimer
+This is an internal tool design for my in-house use only. Use it with your own risk.
